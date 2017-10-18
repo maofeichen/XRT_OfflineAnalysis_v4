@@ -3,8 +3,8 @@ DIR_INC	= ./include/
 DIR_SRC = ./src
 DIR_OBJ	= ./build/
 
-objs 	= main.o file.o util.o 
-OBJS 	= $(addprefix $(DIR_OBJ), main.o file.o util.o)
+objs 	= main.o util.o file.o  
+OBJS 	= $(addprefix $(DIR_OBJ), main.o util.o file.o)
 
 CC		= g++-4.9
 CFLAG	= -g -Wall -std=c++11

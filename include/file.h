@@ -12,8 +12,7 @@ public:
 	File(std::string fp, std::string od) { fp_ = fp; od_ = od; };
 	~File() {};
 
-	void preprocess();
-
+	void read();
 private:
 	const unsigned int MAX_LINE_	= 500000;
 
@@ -21,7 +20,9 @@ private:
 	std::string od_;
 	std::vector<std::string> log_;
 
-	void read();
+	void preprocess();
+	void filter_insn_mark();
 
+	std::string get_flag(std::string &r);
 };
 #endif

@@ -2,6 +2,19 @@
 
 using namespace std;
 
+bool 
+equal_mark(string &flag, string mark) {
+	if(!flag.empty() && !mark.empty() ) {
+		if(flag.compare(mark) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
 vector<std::string> 
 Util::split(const char *s, char c)
 {

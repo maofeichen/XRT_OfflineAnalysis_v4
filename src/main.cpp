@@ -11,7 +11,7 @@ using namespace std;
 
 void analyze(string &fp, string &od, bool &is_dump){
   xt::File file(fp, od);
-  file.preprocess();
+  file.read();
 }
 
 
