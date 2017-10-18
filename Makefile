@@ -15,7 +15,7 @@ all : detector
 detector : $(objs) 
 	$(CC) -o detector $(OBJS) -lboost_program_options
 
-main.o : ./src/main.cpp
+main.o : $(DIR_SRC)/main.cpp
 	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/main.cpp -o $(DIR_OBJ)main.o
 
 file.o : $(DIR_SRC)/file.cpp

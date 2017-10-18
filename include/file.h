@@ -15,8 +15,13 @@ public:
 	void preprocess();
 
 private:
+	const unsigned int MAX_LINE_	= 500000;
+
 	std::string fp_;
 	std::string od_;
+	std::vector<std::string> log_;
+
+	void read();
 
 };
 #endif
