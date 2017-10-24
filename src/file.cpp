@@ -1,3 +1,4 @@
+#include <cassert>
 #include <fstream>
 #include <iostream>
 
@@ -62,6 +63,7 @@ xt::File::read() {
 void
 xt::File::preprocess() {
 	filter_insn_mark();
+	filter_empty_fmark();
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -90,6 +92,56 @@ xt::File::filter_insn_mark() {
 	log_.insert(log_.begin(), v.begin(), v.end() );
 }
 
+// Empty function mark:
+//	CALL_INSN
+//	CALL_INSN_SEC
+//	RET_INSN
+//	RET_INSN_SEC
+// fiters out all such empty functoin marks
+void 
+xt::File::filter_empty_fmark()
+{
+	cout << "filtering empty function mark..." << endl;
+
+	vector<string> v;
+
+	for(auto it = log_.begin(); it != log_.end(); ++it) {
+		string cf = get_flag(*it);
+
+		if(Util::equal_mark(cf, flag::RET_INSN_SEC) 
+			&& (v.size() >= 3) ) {
+			string ret = v.back();
+
+			// if empty fmark, last 3rd rec is the call mark
+			string call  = v[v.size()-3];
+			string callf = get_flag(call);
+			if(Util::equal_mark(callf, flag::CALL_INSN) 
+				|| Util::equal_mark(callf, flag::CALL_INSN_FF2) ) {
+				vector<string> v_call = Util::split(call.c_str(), '\t');
+				vector<string> v_ret  = Util::split(ret.c_str(), '\t');
+				assert(v_call.size() == v_ret.size() );
+
+				// if esp vals are eaqual, matched marks
+				string c_esp = v_call[1];
+				string r_esp = v_ret[1];
+				if(c_esp.compare(r_esp) == 0) {
+					// erase the last 3 marks, and no push
+					v.erase(v.end()-3, v.end() );
+				} else {
+					v.push_back(*it);
+				}
+			} else {
+				v.push_back(*it);
+			}
+		} else {
+			v.push_back(*it);
+		}
+	}
+
+	log_.clear();
+	log_.insert(log_.begin(), v.begin(), v.end() );
+}
+
 void 
 xt::File::dump(ofstream &fout) {
 	if(log_.empty() ) {
@@ -105,7 +157,7 @@ xt::File::dump(ofstream &fout) {
 // returns the flag
 //		first 2 character of the record
 string 
-xt::File::get_flag(string &r) {
+xt::File::get_flag(const string &r) {
 	return r.substr(0,2);
 }
 

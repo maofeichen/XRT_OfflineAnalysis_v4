@@ -27,10 +27,11 @@ private:
 
 	void preprocess();
 	void filter_insn_mark();
+	void filter_empty_fmark();
 
 	void dump(std::ofstream &fout);
 
-	std::string get_flag(std::string &r);
+	std::string get_flag(const std::string &r);
 	std::string get_op();
 };
 #endif
