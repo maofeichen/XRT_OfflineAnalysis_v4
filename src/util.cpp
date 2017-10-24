@@ -3,7 +3,7 @@
 using namespace std;
 
 bool 
-equal_mark(string &flag, string mark) {
+Util::equal_mark(string &flag, string mark) {
 	if(!flag.empty() && !mark.empty() ) {
 		if(flag.compare(mark) == 0) {
 			return true;

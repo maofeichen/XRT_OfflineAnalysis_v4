@@ -9,13 +9,30 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-void analyze(string &fp, string &od, bool &is_dump){
-  xt::File file(fp, od);
+string 
+get_time() {
+  time_t t = time(0);   // get time now
+  struct tm * now = localtime( & t );
+
+  string ct = to_string( (now->tm_year + 1900) ) + '-' +
+      to_string( (now->tm_mon + 1) ) + '-' +
+      to_string(  now->tm_mday) + '-' +
+      to_string(  now->tm_hour) + '-' +
+      to_string(  now->tm_min);
+
+  ct = "-" + ct;
+  return ct;
+}
+
+void 
+analyze(string &fp, string &od, bool &is_dump, string &ct){
+  xt::File file(fp, od, is_dump, ct);
   file.read();
 }
 
 
-int main(int argc, char *argv[]) {
+int 
+main(int argc, char *argv[]) {
   po::options_description desc("Allowed options");
 
   desc.add_options()
@@ -47,12 +64,9 @@ int main(int argc, char *argv[]) {
     bool is_dump = vm["dump-result"].as< bool >();
     cout << "Is Dump: \t" << is_dump << endl;
 
-    analyze(fp, od, is_dump);
+    string ct = get_time();
 
-    // vector<string> v_fp = Util::split(fp.c_str(), '/');
-    // string log_name = v_fp.back();
-    // log_name = log_name.substr(0, log_name.size() - 4);
-    // cout << "log name: " << log_name << endl;
+    analyze(fp, od, is_dump, ct);
 
     // Detector detector(log_name, is_dump);
     // detector.detect();
