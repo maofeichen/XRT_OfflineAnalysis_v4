@@ -9,6 +9,9 @@
 
 using namespace std;
 
+// Reads the log into a local buffer (log_), if the buf is full, preprossse
+// the buffer then flush it. 
+// If dump, writes the buffer to a output file before flushing. 
 void
 xt::File::read() {
 	// cout << "Input Log: \t" << fp_ << endl;
@@ -62,8 +65,9 @@ xt::File::read() {
 
 void
 xt::File::preprocess() {
-	filter_insn_mark();
 	filter_empty_fmark();
+	filter_invalid_fmark();
+	filter_insn_mark();
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -142,6 +146,71 @@ xt::File::filter_empty_fmark()
 	log_.insert(log_.begin(), v.begin(), v.end() );
 }
 
+// If between a matched function call marks, does not contain any data
+// flow record, then it is consider invalid. 
+// Flters out all such marks, O(n^2)? 
+void 
+xt::File::filter_invalid_fmark()
+{
+	cout << "filtering invalid function marks..." << endl;
+	vector<string> v;
+
+	vector<string> call_s;
+	vector<string>::iterator it_call;
+	vector<string>::iterator it_ret;
+
+	bool has_valid	= false;
+
+	for(auto it = log_.begin(); it != log_.end(); ++it) {
+		bool is_del	= false;
+
+		string cf 	 = get_flag(*it);
+		bool is_mark = Util::is_mark(cf);
+
+		if(is_mark) {
+			if(Util::equal_mark(cf, flag::CALL_INSN) 
+				|| Util::equal_mark(cf, flag::CALL_INSN_FF2) ) {
+
+				call_s.push_back(*it);
+				has_valid = false;	// init for each call mark, assume no valid
+
+			} else if(Util::equal_mark(cf, flag::RET_INSN_SEC) 
+					  && !call_s.empty() ) {
+				string call = call_s.back();	
+				it_ret  	= it - 1;
+				string ret  = *it_ret;
+
+				if(is_match_fmark(call, ret) && !has_valid) {
+					call_s.pop_back();
+
+					// del all marks between invalid match call and ret 
+					string rec = v.back();
+					while(rec.compare(call) == 0) {
+						v.pop_back();
+						rec = v.back();
+					}
+					v.pop_back();	// pop the last call mark
+
+					is_del = true;
+				}
+
+			} else {
+
+			}
+
+		} else {
+			has_valid = true;
+		}
+
+		if(!is_del) {
+			v.push_back(*it);
+		}
+	} // end for
+
+	log_.clear();
+	log_.insert(log_.begin(), v.begin(), v.end() );
+}
+
 void 
 xt::File::dump(ofstream &fout) {
 	if(log_.empty() ) {
@@ -151,6 +220,23 @@ xt::File::dump(ofstream &fout) {
 		for(auto it = log_.begin() ; it != log_.end(); ++it) {
 			fout << *it << '\n';
 		}	
+	}
+}
+
+bool 
+xt::File::is_match_fmark(const std::string &call, const std::string &ret)
+{
+	vector<string> v_call = Util::split(call.c_str(), '\t');
+	vector<string> v_ret  = Util::split(ret.c_str(), '\t');
+	assert(v_call.size() == v_ret.size() );
+
+	// if esp vals are eaqual, matched marks
+	string c_esp = v_call[1];
+	string r_esp = v_ret[1];
+	if(c_esp.compare(r_esp) == 0) {
+		return true;
+	} else {
+		return false;
 	}
 }
 

@@ -17,7 +17,7 @@ public:
 
 	void read();
 private:
-	const unsigned int MAX_LINE_	= 500000;
+	const unsigned int MAX_LINE_	= 1000000;	// log_ size
 
 	std::string fp_;
 	std::string od_;
@@ -28,9 +28,11 @@ private:
 	void preprocess();
 	void filter_insn_mark();
 	void filter_empty_fmark();
+	void filter_invalid_fmark();
 
 	void dump(std::ofstream &fout);
 
+	bool is_match_fmark(const std::string &call, const std::string &ret);
 	std::string get_flag(const std::string &r);
 	std::string get_op();
 };
