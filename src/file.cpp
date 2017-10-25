@@ -36,11 +36,13 @@ xt::File::read() {
 		
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
-				preprocess();
-				if(is_dump_) {
-					dump(fout);
-				}
-				log_.clear();
+				// preprocess();
+				// if(is_dump_) {
+				// 	dump(fout);
+				// }
+				// log_.clear();
+
+				help_preprocess(fout);
 
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
@@ -48,6 +50,17 @@ xt::File::read() {
 				log_.push_back(line);
 			}
 			lc++;
+		}
+
+		// preprocess the last
+		if(!log_.empty() ) {
+			cout << "preprocess last records" << endl;
+			// preprocess();
+			// if(is_dump_) {
+			// 	dump(fout);
+			// }
+			// log_.clear();
+			help_preprocess(fout);
 		}
 		cout << "finish reading - total lines: \t" << lc << endl;
 		
@@ -61,6 +74,16 @@ xt::File::read() {
 	}
 
 	fin.close();
+}
+
+void 
+xt::File::help_preprocess(ofstream &fout)
+{
+	preprocess();
+	if(is_dump_) {
+		dump(fout);
+	}
+	log_.clear();
 }
 
 void

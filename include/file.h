@@ -25,6 +25,7 @@ private:
 	std::string ct_;
 	std::vector<std::string> log_;
 
+	void help_preprocess(std::ofstream &fout);
 	void preprocess();
 	void filter_insn_mark();
 	void filter_empty_fmark();
