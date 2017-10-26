@@ -25,14 +25,18 @@ private:
 	std::string ct_;
 	std::vector<std::string> log_;
 
-	void help_preprocess(std::ofstream &fout);
+	void preprocess_flow(std::ofstream &fout);
 	void preprocess();
 	void filter_insn_mark();
 	void filter_empty_fmark();
 	void filter_invalid_fmark();
+	void parse_buf_size();
+	std::string get_buf_size(const int ifg, int &tcg_encode);
+	std::string update_buf_size(const std::string &rec, const std::string &sz, const int tcg_encode);
 
 	void dump(std::ofstream &fout);
 
+	bool is_buf_range(const int &flag);
 	bool is_match_fmark(const std::string &call, const std::string &ret);
 	std::string get_flag(const std::string &r);
 	std::string get_op();

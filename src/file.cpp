@@ -1,6 +1,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "cons.h"
 #include "flag.h"
@@ -37,7 +38,7 @@ xt::File::read() {
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
 
-				help_preprocess(fout);
+				preprocess_flow(fout);
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 			} else {
@@ -49,7 +50,7 @@ xt::File::read() {
 		// preprocess the rest records 
 		if(!log_.empty() ) {
 			// cout << "preprocess last records" << endl;
-			help_preprocess(fout);
+			preprocess_flow(fout);
 		}
 
 		cout << "finish reading - total lines: \t" << lc << endl;
@@ -66,7 +67,7 @@ xt::File::read() {
 }
 
 void 
-xt::File::help_preprocess(ofstream &fout)
+xt::File::preprocess_flow(ofstream &fout)
 {
 	preprocess();
 	if(is_dump_) {
@@ -77,9 +78,10 @@ xt::File::help_preprocess(ofstream &fout)
 
 void
 xt::File::preprocess() {
-	filter_insn_mark();
 	filter_empty_fmark();
 	filter_invalid_fmark();
+	filter_insn_mark();
+	parse_buf_size();
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -224,6 +226,100 @@ xt::File::filter_invalid_fmark()
 	log_.insert(log_.begin(), v.begin(), v.end() );
 }
 
+// Parses buf (rec) size based on the encode of flag
+void 
+xt::File::parse_buf_size()
+{
+	cout << "parsing buffer record size..." << endl;
+
+	vector<string> v;
+	string sz;
+	string o_rec, n_rec;
+
+	for(auto it = log_.begin(); it != log_.end(); ++it) {
+		string cf = get_flag(*it);
+		o_rec = *it;
+
+		if(!Util::is_mark(cf) ) {
+			int icf = stoi(cf, nullptr, 16);
+			if(is_buf_range(icf) ) {
+				int tcg_encode = 0;
+				sz = get_buf_size(icf, tcg_encode);
+				n_rec = update_buf_size(o_rec, sz, tcg_encode);
+				v.push_back(n_rec);
+			} else {
+				v.push_back(*it);
+			}
+		} else {
+			v.push_back(*it);
+		}
+	}
+
+	log_.clear();
+	log_.insert(log_.begin(), v.begin(), v.end() );
+}
+
+string 
+xt::File::get_buf_size(const int ifg, int &tcg_encode)
+{
+	int sz = 0;
+
+	if(ifg > flag::NUM_TCG_ST_POINTER) {
+		sz 	= ifg - flag::NUM_TCG_ST_POINTER;
+		tcg_encode = flag::NUM_TCG_ST_POINTER;
+	} else if(ifg > flag::NUM_TCG_ST) {
+		sz 	= ifg - flag::NUM_TCG_ST;
+		tcg_encode = flag::NUM_TCG_ST;
+	} else if(ifg > flag::NUM_TCG_LD_POINTER) {
+		sz 	= ifg - flag::NUM_TCG_LD_POINTER;
+		tcg_encode = flag::NUM_TCG_LD_POINTER;
+	} else if(ifg > flag::NUM_TCG_LD) {
+		sz 	= ifg - flag::NUM_TCG_LD;
+		tcg_encode = flag::NUM_TCG_LD;
+	} else {
+		cout << "get_buf_size - unknown flag encode, exit"  << endl;
+		exit(1);
+	}
+
+	switch(sz) {
+		case 1:
+			return "8";
+		case 2:
+			return "16";
+		case 3: 
+			return "32";
+		default:
+			cout << "get_buf_size - unknown size, exit" << endl;
+			exit(1);
+	}
+}
+
+string 
+xt::File::update_buf_size(const string &rec, const string &sz, const int tcg_encode)
+{
+	vector<string> v;
+
+	string rec_new;	
+	string s_tcg_encode;
+	ostringstream o_tcg_encode;
+
+	o_tcg_encode << std::hex << tcg_encode;
+	s_tcg_encode = o_tcg_encode.str();
+
+	v = Util::split(rec.c_str(), '\t');
+
+	rec_new = s_tcg_encode + '\t';
+	rec_new += v[1] + '\t';
+	rec_new += v[2] + '\t';
+
+	rec_new += s_tcg_encode + '\t';
+	rec_new += v[4] + '\t';
+	rec_new += v[5] + '\t';
+	rec_new += sz;
+
+	return rec_new;
+}
+
 void 
 xt::File::dump(ofstream &fout) {
 	if(log_.empty() ) {
@@ -233,6 +329,17 @@ xt::File::dump(ofstream &fout) {
 		for(auto it = log_.begin() ; it != log_.end(); ++it) {
 			fout << *it << '\n';
 		}	
+	}
+}
+
+bool 
+xt::File::is_buf_range(const int &flag)
+{
+	if(flag >= flag::NUM_TCG_LD_MIN 
+		&& flag <= flag::NUM_TCG_ST_MAX) {
+		return true;
+	} else {
+		return false;
 	}
 }
 
