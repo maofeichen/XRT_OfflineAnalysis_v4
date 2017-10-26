@@ -17,7 +17,7 @@ public:
 
 	void read();
 private:
-	const unsigned int MAX_LINE_	= 1000000;	// log_ size
+	const unsigned int MAX_LINE_	= 5000000;	// log_ size
 
 	std::string fp_;
 	std::string od_;

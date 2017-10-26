@@ -36,14 +36,8 @@ xt::File::read() {
 		
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
-				// preprocess();
-				// if(is_dump_) {
-				// 	dump(fout);
-				// }
-				// log_.clear();
 
 				help_preprocess(fout);
-
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 			} else {
@@ -52,18 +46,13 @@ xt::File::read() {
 			lc++;
 		}
 
-		// preprocess the last
+		// preprocess the rest records 
 		if(!log_.empty() ) {
-			cout << "preprocess last records" << endl;
-			// preprocess();
-			// if(is_dump_) {
-			// 	dump(fout);
-			// }
-			// log_.clear();
+			// cout << "preprocess last records" << endl;
 			help_preprocess(fout);
 		}
+
 		cout << "finish reading - total lines: \t" << lc << endl;
-		
 		if(is_dump_) {
 			cout << "finish dumping output" << endl;
 			fout.close(); 
@@ -88,9 +77,9 @@ xt::File::help_preprocess(ofstream &fout)
 
 void
 xt::File::preprocess() {
+	filter_insn_mark();
 	filter_empty_fmark();
 	filter_invalid_fmark();
-	filter_insn_mark();
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -207,8 +196,9 @@ xt::File::filter_invalid_fmark()
 					call_s.pop_back();
 
 					// del all marks between invalid match call and ret 
+					// != 0 due to if they are not same keep pop until same, stop
 					string rec = v.back();
-					while(rec.compare(call) == 0) {
+					while(rec.compare(call) != 0) {
 						v.pop_back();
 						rec = v.back();
 					}
