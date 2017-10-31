@@ -6,6 +6,7 @@
 namespace cons{
 	const std::string ext		 = ".txt";
 	const std::string preprocess = "-preprocess";
+	const std::string alivemem	 = "-alivemem";
 }
 
 #endif

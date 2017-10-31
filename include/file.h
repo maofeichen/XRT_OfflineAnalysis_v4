@@ -27,8 +27,9 @@ private:
 	std::vector<std::string> log_;
 
 	void preproc_flow(std::ofstream &fout);
-	void dump(std::ofstream &fout);
+	void liveness_flow(std::vector<std::string> &rslt);
 
-	std::string get_op();
+	void dump(std::ofstream &fout);
+	std::string get_op(const std::string fns);
 };
 #endif

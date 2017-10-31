@@ -11,9 +11,9 @@ using namespace std;
 void 
 Preproc::preprocess(std::vector<std::string> &log)
 {
-	filter_insn_mark(log);
 	filter_empty_fmark(log);
 	filter_invalid_fmark(log);
+	filter_insn_mark(log);
 	parse_buf_size(log);
 }
 

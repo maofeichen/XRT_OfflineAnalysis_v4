@@ -3,8 +3,8 @@ DIR_INC	= ./include/
 DIR_SRC = ./src
 DIR_OBJ	= ./build/
 
-OBJS_PREPROC 	= $(addprefix $(DIR_OBJ), main_preprocess.o file.o preprocess.o util.o)
-OBJS_LIVENESS	= $(addprefix $(DIR_OBJ), main_liveness.o file.o preprocess.o util.o)
+OBJS_PREPROC 	= $(addprefix $(DIR_OBJ), main_preprocess.o file.o preprocess.o liveness.o util.o)
+OBJS_LIVENESS	= $(addprefix $(DIR_OBJ), main_liveness.o file.o preprocess.o liveness.o util.o)
 
 CC		= g++-4.9
 CFLAG	= -g -Wall -std=c++11
@@ -31,9 +31,12 @@ $(DIR_OBJ)file.o : $(DIR_SRC)/file.cpp
 $(DIR_OBJ)preprocess.o : $(DIR_SRC)/preprocess.cpp
 	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/preprocess.cpp -o $(DIR_OBJ)preprocess.o
 
+$(DIR_OBJ)liveness.o : $(DIR_SRC)/liveness.cpp
+	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/liveness.cpp -o $(DIR_OBJ)liveness.o
+
 $(DIR_OBJ)util.o : $(DIR_SRC)/util.cpp
 	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/util.cpp -o $(DIR_OBJ)util.o 
 
 .PHONY : clean
 clean : 
-	rm -f preprocessor ./build/*.o
+	rm -f preprocessor livenessor ./build/*.o
