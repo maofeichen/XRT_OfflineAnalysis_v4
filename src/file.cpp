@@ -39,7 +39,7 @@ xt::File::preproc_read() {
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
 
-				preprocess_flow(fout);
+				preproc_flow(fout);
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 			} else {
@@ -51,7 +51,7 @@ xt::File::preproc_read() {
 		// preprocess the rest records 
 		if(!log_.empty() ) {
 			// cout << "preprocess last records" << endl;
-			preprocess_flow(fout);
+			preproc_flow(fout);
 		}
 
 		cout << "finish reading - total lines: \t" << lc << endl;
@@ -67,8 +67,17 @@ xt::File::preproc_read() {
 	fin.close();
 }
 
+// Reads the log into a local buffer (log_), if the buf is full, liveness it 
+// the buffer then flush it. 
+// If dump, writes the buffer to a output file before flushing. 
+void
+xt::File::liveness_read() 
+{
+	cout << "reading log :\t" << fp_ << "..." << endl;
+}
+
 void 
-xt::File::preprocess_flow(ofstream &fout)
+xt::File::preproc_flow(ofstream &fout)
 {
 	Preproc::preprocess(log_);
 	if(is_dump_) {

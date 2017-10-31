@@ -24,11 +24,10 @@ get_time() {
 
 void 
 analyze(string &fp, string &od, bool &is_dump, string &ct){
-  cout << "preprocessing log..." << endl;
-  xt::File file(fp, od, is_dump, ct);
-  file.preproc_read();
+	cout << "analyzing buffer liveness..." << endl;
+  	xt::File file(fp, od, is_dump, ct);
+  	file.liveness_read();
 }
-
 
 int 
 main(int argc, char *argv[]) {

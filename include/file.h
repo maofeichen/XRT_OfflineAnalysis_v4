@@ -16,6 +16,7 @@ public:
 	~File() {};
 
 	void preproc_read();
+	void liveness_read();
 private:
 	const unsigned int MAX_LINE_	= 5000000;	// log_ size
 
@@ -25,7 +26,7 @@ private:
 	std::string ct_;
 	std::vector<std::string> log_;
 
-	void preprocess_flow(std::ofstream &fout);
+	void preproc_flow(std::ofstream &fout);
 	void dump(std::ofstream &fout);
 
 	std::string get_op();
