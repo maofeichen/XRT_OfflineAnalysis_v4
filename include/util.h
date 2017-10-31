@@ -12,6 +12,10 @@ public:
 
 	static bool equal_mark(const std::string &flag, const std::string mark);
 	static bool is_mark(const std::string &flag);
+	static bool is_match_fmark(const std::string &call, const std::string &ret);
+
+	static std::string get_flag(const std::string &r);
+	static bool is_buf_range(const int &flag);
 	static std::vector<std::string> split(const char *s, char c);	
 };
 #endif

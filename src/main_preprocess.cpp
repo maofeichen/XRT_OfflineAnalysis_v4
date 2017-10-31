@@ -27,7 +27,7 @@ get_time() {
 void 
 analyze(string &fp, string &od, bool &is_dump, string &ct){
   xt::File file(fp, od, is_dump, ct);
-  file.read();
+  file.preproc_read();
 }
 
 
