@@ -37,8 +37,8 @@ Liveness::analyze_liveness(std::vector<std::string> &log,
 
 					if(Util::is_match_fmark(call, ret) ) {
 						cout << "found a match! - call: " << call << " - ret: " << ret << endl;
-						vector<string> func(*rit_cs, it_ret);
-						analyze_per_func(func, rslt);	
+						// vector<string> func(*rit_cs, it_ret+2);
+						// analyze_per_func(func, rslt);	
 
 						// found the matched call mark, delete it from call_stack until end
 						// int interval = call_stack.rend() - rit_cs;
@@ -46,8 +46,19 @@ Liveness::analyze_liveness(std::vector<std::string> &log,
 						// cout << "call in reverse: " << **rit_cs << "- call in forward: " << **it_cs << endl; 
 						// call_stack.erase(it_cs, call_stack.end() );
 
+						// cout << "call stack size: \t" << call_stack.size() << endl;
+						// for(auto its = call_stack.begin(); its != call_stack.end(); ++its) {
+						// 	cout << **its << endl;
+						// }
+
 						int interval = call_stack.rend() - rit_cs;
 						del_call_stack(call_stack, interval);
+
+						// cout << "call stack size after delete: \t" << call_stack.size() << endl;
+						// for(auto its = call_stack.begin(); its != call_stack.end(); ++its) {
+						// 	cout << **its << endl;
+						// }
+
 						fc++;
 						break;
 					} else{}
