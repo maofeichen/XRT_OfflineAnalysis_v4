@@ -127,6 +127,47 @@ xt::File::liveness_read()
 }
 
 void 
+xt::File::mergebuf_read()
+{
+	cout << "reading log :\t" << fp_ << "..." << endl;
+
+	ifstream fin(fp_.c_str() );
+	vector<string> rslt;	// the result vec
+
+	if(fin.is_open() ) {
+		int fc = 0;
+		string	line;
+
+		while(getline(fin, line) ) {
+			if(line.compare(cons::separator) == 0) {
+				mergebuf_flow(rslt);
+				fc++;
+			} else {
+				log_.push_back(line);
+			}
+		}
+
+		cout << "finish merging continuous buffers - total functions: \t" << fc << endl; 
+
+		if(is_dump_) {
+			string op = get_op(cons::alivemem);	
+			ofstream fout(op.c_str() );
+			if(fout.is_open() ) {
+				dump(fout, rslt);
+			} else {
+				cout << "liveness read - error open dump file:\t" << op << endl;
+				return; 
+			}
+		}
+	} else{
+		cout << "mergebuf_read- error open file: \t" << fp_ << endl;
+		return;
+	}
+
+	fin.close();
+}
+
+void 
 xt::File::preproc_flow(ofstream &fout)
 {
 	Preproc::preprocess(log_);
@@ -144,6 +185,13 @@ xt::File::liveness_flow(std::vector<std::string> &rslt)
 {
 	Liveness::analyze_liveness(log_, rslt);
 	log_.clear();
+}
+
+void 
+xt::File::mergebuf_flow(std::vector<std::string> &rslt)
+{
+	Liveness::merge_buf(log_, rslt);
+	log_.clear();	
 }
 
 void 

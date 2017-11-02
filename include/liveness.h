@@ -12,11 +12,18 @@ class Liveness
  
  	static void analyze_liveness(std::vector<std::string> &log, 
  								 std::vector<std::string> &rslt);
+ 	static void merge_buf(std::vector<std::string> &log,
+ 						  std::vector<std::string> &rslt);
  private:
  	static const uint32_t STACK_BEGIN = 0xb0000000;
 
  	static void analyze_per_func(std::vector<std::string> &func,
  								 std::vector<std::string> &rslt);
+
+ 	static void merge_load_buf(std::vector<std::string> &load,
+ 							   std::vector<std::string> &rslt);
+ 	static void merge_store_buf(std::vector<std::string> &store,
+ 							   std::vector<std::string> &rslt);
 
  	static void del_call_stack(std::vector< std::vector<std::string>::iterator > &call_stack, 
  							   int interval);

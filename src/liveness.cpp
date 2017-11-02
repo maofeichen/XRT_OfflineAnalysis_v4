@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 
+#include "cons.h"
 #include "flag.h"
 #include "liveness.h"
 #include "util.h"
@@ -57,6 +58,45 @@ Liveness::analyze_liveness(std::vector<std::string> &log,
 }
 
 void 
+Liveness::merge_buf(std::vector<std::string> &log,
+ 					std::vector<std::string> &rslt)
+{
+	cout << "merging continuous buffers..." << endl;
+	cout << "function call size: \t" << dec << log.size() << endl;
+
+	vector<string> load;
+	vector<string> store;
+
+	int sz 	= log.size();
+
+	if(!Util::is_match_fmark(log[0], log[sz-2]) ) {
+		cout << "merge_buf - error: given function call & ret do not match" << endl;
+		exit(1);
+	}
+
+	for(auto it = log.begin()+2; it != log.end()-2; ++it) {
+		string cflag = Util::get_flag(*it);
+
+		if(Util::equal_mark(cflag, flag::TCG_QEMU_LD) ) {
+			load.push_back(*it);
+		} else if(Util::equal_mark(cflag, flag::TCG_QEMU_ST) ) {
+			store.push_back(*it);
+		} else {
+			cout << "merge_buf - error: un-recognize buf type, exit" << endl;
+			exit(1);
+		}
+	}
+
+	if(!load.empty() ) {
+		merge_load_buf(load, rslt);
+	}
+
+	if(!store.empty() ) {
+		merge_store_buf(store, rslt);
+	}
+}
+
+void 
 Liveness::analyze_per_func(std::vector<std::string> &fnct_rcrd,
  						   std::vector<std::string> &rslt)
 {
@@ -105,10 +145,28 @@ Liveness::analyze_per_func(std::vector<std::string> &fnct_rcrd,
 
 	if(rc > 0) {
 		rslt.insert(rslt.end(), v.begin(), v.end() );
+		rslt.push_back(cons::separator);
 	}
 
 	cout << "result alive records: \t" << dec << rslt.size() << endl;
 }
+
+void 
+Liveness::merge_load_buf(std::vector<std::string> &load,
+ 						 std::vector<std::string> &rslt)
+{
+	cout << "merging load buf - num: \t" << load.size() << endl;
+
+	
+}
+
+void 
+Liveness::merge_store_buf(std::vector<std::string> &store,
+ 						  std::vector<std::string> &rslt)
+{
+	cout << "merging stroe buf - num: \t" << store.size() << endl;
+}
+
 
 // delete elements given the interval to begin, and until to end
 void 
