@@ -29,7 +29,7 @@ private:
 	void preproc_flow(std::ofstream &fout);
 	void liveness_flow(std::vector<std::string> &rslt);
 
-	void dump(std::ofstream &fout);
+	void dump(std::ofstream &fout, std::vector<std::string> &out);
 	std::string get_op(const std::string fns);
 };
 #endif

@@ -81,7 +81,7 @@ xt::File::liveness_read()
 	cout << "reading log :\t" << fp_ << "..." << endl;
 
 	ifstream fin(fp_.c_str() );
-	vector<string> v;	// the result vec
+	vector<string> rslt;	// the result vec
 
 	if(fin.is_open() ) {
 		int lc = 0;
@@ -92,7 +92,7 @@ xt::File::liveness_read()
 
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
-				liveness_flow(v);
+				liveness_flow(rslt);
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 			} else {
@@ -102,10 +102,22 @@ xt::File::liveness_read()
 		}
 		// analyze all rest records 
 		if(!log_.empty() ) {
-			liveness_flow(v);
+			liveness_flow(rslt);
 		}
 
-		cout << "finish reading and analyzing liveness - total lines: \t" << lc << endl;
+		cout << "finish reading and analyzing liveness - total lines: \t" << dec << lc << endl;
+		cout << "total alive records: \t" << dec << rslt.size() << endl;
+
+		if(is_dump_) {
+			string op = get_op(cons::alivemem);	
+			ofstream fout(op.c_str() );
+			if(fout.is_open() ) {
+				dump(fout, rslt);
+			} else {
+				cout << "liveness read - error open dump file:\t" << op << endl;
+				return; 
+			}
+		}
 	} else{
 		cout << "liveness_read - error open file: \t" << fp_ << endl;
 		return;
@@ -119,7 +131,7 @@ xt::File::preproc_flow(ofstream &fout)
 {
 	Preproc::preprocess(log_);
 	if(is_dump_) {
-		dump(fout);
+		dump(fout, log_);
 	}
 	log_.clear();
 }
@@ -135,12 +147,12 @@ xt::File::liveness_flow(std::vector<std::string> &rslt)
 }
 
 void 
-xt::File::dump(ofstream &fout) {
-	if(log_.empty() ) {
+xt::File::dump(ofstream &fout, vector<string> &out) {
+	if(out.empty() ) {
 		cout << "dump - log vector is empty" << endl;
 		return;
 	} else {
-		for(auto it = log_.begin() ; it != log_.end(); ++it) {
+		for(auto it = out.begin() ; it != out.end(); ++it) {
 			fout << *it << '\n';
 		}	
 	}

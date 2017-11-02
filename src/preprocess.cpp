@@ -14,7 +14,7 @@ Preproc::preprocess(std::vector<std::string> &log)
 	filter_empty_fmark(log);
 	filter_invalid_fmark(log);
 	filter_insn_mark(log);
-	parse_buf_size(log);
+	// parse_buf_size(log);
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
