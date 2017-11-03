@@ -33,14 +33,16 @@ xt::File::preproc_read() {
 			} 
 		}
 
-		int lc = 0;
-		int sc = 0;
+		int lc 		 = 0;
+		int sc 		 = 0;
+		uint64_t idx = 0;
 		string	line;
+
 		cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 		while(getline(fin, line) ) {
 			if(log_.size() >= MAX_LINE_) {
 
-				preproc_flow(fout);
+				preproc_flow(fout, idx);
 				sc++;
 				cout << "read " << sc << "\t" << MAX_LINE_ << " lines" << endl;
 			} else {
@@ -52,10 +54,11 @@ xt::File::preproc_read() {
 		// preprocess the rest records 
 		if(!log_.empty() ) {
 			// cout << "preprocess last records" << endl;
-			preproc_flow(fout);
+			preproc_flow(fout, idx);
 		}
 
-		cout << "finish reading - total lines: \t" << lc << endl;
+		cout << "finish reading - total lines: \t" << dec << lc 
+			 << " - total index: " << dec << idx << endl;
 		if(is_dump_) {
 			cout << "finish dumping output" << endl;
 			fout.close(); 
@@ -168,9 +171,9 @@ xt::File::mergebuf_read()
 }
 
 void 
-xt::File::preproc_flow(ofstream &fout)
+xt::File::preproc_flow(ofstream &fout, uint64_t &idx)
 {
-	Preproc::preprocess(log_);
+	Preproc::preprocess(log_, idx);
 	if(is_dump_) {
 		dump(fout, log_);
 	}

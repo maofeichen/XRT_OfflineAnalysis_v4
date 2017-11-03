@@ -27,7 +27,7 @@ private:
 	std::string ct_;
 	std::vector<std::string> log_;
 
-	void preproc_flow(std::ofstream &fout);
+	void preproc_flow(std::ofstream &fout, uint64_t &idx);
 	void liveness_flow(std::vector<std::string> &rslt);
 	void mergebuf_flow(std::vector<std::string> &rslt);
 

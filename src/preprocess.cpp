@@ -9,12 +9,14 @@
 using namespace std;
 
 void 
-Preproc::preprocess(std::vector<std::string> &log)
+Preproc::preprocess(std::vector<std::string> &log,
+					uint64_t &idx)
 {
 	filter_empty_fmark(log);
 	filter_invalid_fmark(log);
 	filter_insn_mark(log);
-	// parse_buf_size(log);
+	parse_buf_size(log);
+	add_idx(log, idx);
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -251,4 +253,30 @@ Preproc::update_buf_size(const string &rec, const string &sz, const int tcg_enco
 	rec_new += sz;
 
 	return rec_new;
+}
+
+void 
+Preproc::add_idx(std::vector<std::string> &log, uint64_t &idx)
+{
+	cout << "adding index to log..." << endl;
+	vector<string> v;
+
+	for(auto it = log.begin(); it != log.end(); ++it) {
+		string cflag = Util::get_flag(*it);
+		string s_idx = to_string(idx);
+
+		if(Util::equal_mark(cflag, flag::TCG_QEMU_LD) 
+			|| Util::equal_mark(cflag, flag::TCG_QEMU_ST) ) {
+			(*it) += '\t';
+			(*it) += s_idx;
+		} else {
+			(*it) += s_idx;
+		}
+
+		v.push_back(*it);
+		idx++;
+	}	
+
+	log.clear();
+	log.insert(log.begin(), v.begin(), v.end() );
 }
