@@ -4,6 +4,7 @@
 #include "cons.h"
 #include "flag.h"
 #include "liveness.h"
+#include "record.h"
 #include "util.h"
 
 using namespace std;
