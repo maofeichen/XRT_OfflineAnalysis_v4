@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 
 #include "flag.h"
 #include "util.h"
@@ -57,6 +58,14 @@ string
 Util::get_flag(const std::string &r)
 {
 	return r.substr(0,2);
+}
+
+void 
+Util::print_log(const std::vector<std::string> &log)
+{
+	for(auto it = log.begin(); it != log.end(); ++it) {
+		cout << *it << endl;
+	}
 }
 
 bool 
