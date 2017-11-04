@@ -8,7 +8,7 @@ namespace cons{
 	const std::string preprocess = "-preprocess";
 	const std::string alivemem	 = "-alivemem";
 
-	const std::string separator	 = "--------------------";
+	const std::string dash_sprtr = "--------------------";
 	const std::string star_sprtr = "********************";
 }
 

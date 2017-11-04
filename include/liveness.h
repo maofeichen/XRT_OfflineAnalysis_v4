@@ -44,6 +44,10 @@ class Liveness
  							    std::vector<std::string> &buf_rcrd);
 
  	static void print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string> &buf_rcrd);
+ 	static void save_merge_buf(uint32_t baddr, 
+ 							   uint32_t size, 
+ 							   std::vector<std::string> &buf_rcrd, 
+ 							   std::vector<std::string> &rslt);
 
  	static void del_call_stack(std::vector< std::vector<std::string>::iterator > &call_stack, 
  							   int interval);

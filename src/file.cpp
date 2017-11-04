@@ -142,7 +142,7 @@ xt::File::mergebuf_read()
 		string	line;
 
 		while(getline(fin, line) ) {
-			if(line.compare(cons::separator) == 0) {
+			if(line.compare(cons::dash_sprtr) == 0) {
 				mergebuf_flow(rslt);
 				fc++;
 			} else {
@@ -151,6 +151,7 @@ xt::File::mergebuf_read()
 		}
 
 		cout << "finish merging continuous buffers - total functions: \t" << fc << endl; 
+		Util::print_log(rslt);
 
 		if(is_dump_) {
 			string op = get_op(cons::alivemem);	
