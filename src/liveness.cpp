@@ -62,11 +62,15 @@ void
 Liveness::merge_buf(std::vector<std::string> &log,
  					std::vector<std::string> &rslt)
 {
+	cout << cons::star_sprtr << endl;
 	cout << "merging continuous buffers..." << endl;
 	cout << "function call size: \t" << dec << log.size() << endl;
+	cout << cons::star_sprtr << endl;
 
 	vector<string> load;
 	vector<string> store;
+	vector<string> ld_rslt;
+	vector<string> st_rslt;
 
 	int sz 	= log.size();
 
@@ -90,13 +94,14 @@ Liveness::merge_buf(std::vector<std::string> &log,
 
 	if(!load.empty() ) {
 		// merge_load_buf(load, rslt);
-		merge_ldst_buf(load, rslt, true);
+		merge_ldst_buf(load, ld_rslt, true);
 	}
 
 	cout << cons::separator << endl;
 
 	if(!store.empty() ) {
-		merge_store_buf(store, rslt);
+		// merge_store_buf(store, rslt);
+		merge_ldst_buf(store, st_rslt, false);
 	}
 }
 
@@ -162,88 +167,88 @@ Liveness::merge_load_buf(std::vector<std::string> &load,
 	cout << "merging load buf - num: \t" << load.size() << endl;
 	// Util::print_log(load);
 
-	vector<string> buf_rcrd;
+	// vector<string> buf_rcrd;
 
-	uint32_t b_addr;
-	uint64_t b_idx;	
-	uint32_t b_byte_sz;
-	uint32_t accm_byte_sz;
-	init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, load[0], buf_rcrd);
+	// uint32_t b_addr;
+	// uint64_t b_idx;	
+	// uint32_t b_byte_sz;
+	// uint32_t accm_byte_sz;
+	// init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, load[0], buf_rcrd);
 
 
-	uint32_t interval 	 = 0;	
-	uint32_t cntns_ct	 = 0;
-	uint64_t p_idx		 = b_idx;
-	uint64_t c_idx 		 = 0;
+	// uint32_t interval 	 = 0;	
+	// uint32_t cntns_ct	 = 0;
+	// uint64_t p_idx		 = b_idx;
+	// uint64_t c_idx 		 = 0;
 
-	for(auto it = load.begin()+1; it != load.end(); ++it) {
-		uint32_t addr 	 = get_load_addr(*it);
-		uint64_t idx  	 = get_idx(*it);
-		uint32_t byte_sz = get_byte_sz(*it);
+	// for(auto it = load.begin()+1; it != load.end(); ++it) {
+	// 	uint32_t addr 	 = get_load_addr(*it);
+	// 	uint64_t idx  	 = get_idx(*it);
+	// 	uint32_t byte_sz = get_byte_sz(*it);
 
-		uint32_t c_addr  = b_addr + accm_byte_sz;
-		c_idx = idx;
+	// 	uint32_t c_addr  = b_addr + accm_byte_sz;
+	// 	c_idx = idx;
 
-		if(c_addr > addr) {
-			// cout << "merge_load - current addr > current rec addr case" << endl;
-			print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
+	// 	if(c_addr > addr) {
+	// 		// cout << "merge_load - current addr > current rec addr case" << endl;
+	// 		print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
-			// re-init
-			buf_rcrd.clear();
-			init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
+	// 		// re-init
+	// 		buf_rcrd.clear();
+	// 		init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
 
-			interval = 0;
-			cntns_ct = 0;
-			p_idx	 = idx;
-		} else if( c_addr == addr) {
-			// continuous case
-			if(cntns_ct == 0) {
-				// if first continuous buffers, init interval 
-				interval = c_idx - p_idx;
-				buf_rcrd.push_back(*it);
-				accm_byte_sz += byte_sz;
-				cntns_ct++;
-				// success continue
-			} else if(cntns_ct > 0) {
-				// for rest continuous buffers
-				if(interval == (c_idx - p_idx) ) {
-					buf_rcrd.push_back(*it);
-					accm_byte_sz += byte_sz;
-					cntns_ct++;
-				} else {
-					// cout << "merge_load - current addr > current rec addr case" << endl;
-					print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
+	// 		interval = 0;
+	// 		cntns_ct = 0;
+	// 		p_idx	 = idx;
+	// 	} else if( c_addr == addr) {
+	// 		// continuous case
+	// 		if(cntns_ct == 0) {
+	// 			// if first continuous buffers, init interval 
+	// 			interval = c_idx - p_idx;
+	// 			buf_rcrd.push_back(*it);
+	// 			accm_byte_sz += byte_sz;
+	// 			cntns_ct++;
+	// 			// success continue
+	// 		} else if(cntns_ct > 0) {
+	// 			// for rest continuous buffers
+	// 			if(interval == (c_idx - p_idx) ) {
+	// 				buf_rcrd.push_back(*it);
+	// 				accm_byte_sz += byte_sz;
+	// 				cntns_ct++;
+	// 			} else {
+	// 				// cout << "merge_load - current addr > current rec addr case" << endl;
+	// 				print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
-					// re-init
-					buf_rcrd.clear();
-					init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
+	// 				// re-init
+	// 				buf_rcrd.clear();
+	// 				init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
 
-					interval = 0;
-					cntns_ct = 0;
-					p_idx	 = idx;
-				}
-			} else {}
+	// 				interval = 0;
+	// 				cntns_ct = 0;
+	// 				p_idx	 = idx;
+	// 			}
+	// 		} else {}
 
-		} else {
-			// discontinuous case
-			// cout << "merge_load - discontinuous case" << endl;
-			print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
+	// 	} else {
+	// 		// discontinuous case
+	// 		// cout << "merge_load - discontinuous case" << endl;
+	// 		print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
-			// re-init
-			buf_rcrd.clear();
-			init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
+	// 		// re-init
+	// 		buf_rcrd.clear();
+	// 		init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);	
 
-			interval = 0;
-			cntns_ct = 0;
-			p_idx	 = idx;
-		}
+	// 		interval = 0;
+	// 		cntns_ct = 0;
+	// 		p_idx	 = idx;
+	// 	}
 
-		p_idx = idx;
-	}
+	// 	p_idx = idx;
+	// }
 
-	if(!buf_rcrd.empty() ) {
-		print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
-	}
+	// if(!buf_rcrd.empty() ) {
+	// 	print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
+	// }
 }
 
 void 
@@ -272,7 +277,6 @@ Liveness::merge_ldst_buf(std::vector<std::string> &buf,
 	uint64_t b_idx;	
 	uint32_t b_byte_sz;
 	uint32_t accm_byte_sz;
-	// init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, buf[0], buf_rcrd);
 	init_ldst_begin_buf(b_addr, b_idx, b_byte_sz, accm_byte_sz, buf[0], buf_rcrd, is_ld);
 
 
@@ -282,7 +286,6 @@ Liveness::merge_ldst_buf(std::vector<std::string> &buf,
 	uint64_t c_idx 		 = 0;
 
 	for(auto it = buf.begin()+1; it != buf.end(); ++it) {
-		// uint32_t addr 	 = get_load_addr(*it);
 		uint32_t addr  	 = get_ldst_addr(*it, is_ld);
 		uint64_t idx  	 = get_idx(*it);
 		uint32_t byte_sz = get_byte_sz(*it);
@@ -295,8 +298,6 @@ Liveness::merge_ldst_buf(std::vector<std::string> &buf,
 			print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
 			// re-init
-			// buf_rcrd.clear();
-			// init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);
 			init_ldst_begin_buf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd, is_ld);
 
 			interval = 0;
@@ -322,8 +323,6 @@ Liveness::merge_ldst_buf(std::vector<std::string> &buf,
 					print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
 					// re-init
-					// buf_rcrd.clear();
-					// init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);
 					init_ldst_begin_buf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd, is_ld);
 
 					interval = 0;
@@ -338,8 +337,6 @@ Liveness::merge_ldst_buf(std::vector<std::string> &buf,
 			print_merge_buf(b_addr, accm_byte_sz, buf_rcrd);
 
 			// re-init
-			// buf_rcrd.clear();
-			// init_begin_lbuf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd);
 			init_ldst_begin_buf(b_addr, b_idx, b_byte_sz, accm_byte_sz, *it, buf_rcrd, is_ld);
 
 			interval = 0;

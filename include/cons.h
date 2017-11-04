@@ -9,6 +9,7 @@ namespace cons{
 	const std::string alivemem	 = "-alivemem";
 
 	const std::string separator	 = "--------------------";
+	const std::string star_sprtr = "********************";
 }
 
 #endif
