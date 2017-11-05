@@ -150,6 +150,40 @@ Liveness::merge_buf(std::vector<std::string> &log,
 }
 
 void 
+Liveness::init_alvfunc(std::vector<std::string> &log,
+						  std::list<Alivefunc>& lst_alvfunc)
+{
+	cout << "analyzing alive function call..." << endl;
+	// Util::print_log(log);
+
+	Alivefunc alvfunc;
+	vector<string> v;
+
+	int sz = log.size();
+	alvfunc.set_call_fir(log[0]);
+	alvfunc.set_call_sec(log[1]);
+	alvfunc.set_ret_fir(log[sz-2]);
+	alvfunc.set_ret_sec(log[sz-1]);
+
+	cout << log[0] << endl;
+	cout << log[1] << endl;
+
+	for(auto it = log.begin()+3; it != log.end() - 2; ++it) {
+		if(it->compare(cons::dash_sprtr) == 0) {
+			// analyze alive buffer
+			// Util::print_log(v);
+			init_alvbuf(v, alvfunc);
+			v.clear();
+		} else {
+			v.push_back(*it);
+		}
+	}
+
+	cout << log[sz-2] << endl;
+	cout << log[sz-1] << endl;
+}
+
+void 
 Liveness::print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf)
 {
 	cout << "list alive buffers " 
@@ -525,6 +559,27 @@ Liveness::store_merge_buf(uint32_t baddr,
 	rslt.insert(rslt.end(), buf_rcrd.begin(), buf_rcrd.end() );
 
 	rslt.push_back(cons::dash_sprtr);	
+}
+
+void 
+Liveness::init_alvbuf(std::vector<std::string>& buf,
+ 					  Alivefunc& alvfunc)
+{
+	string buf_info = buf[0];
+
+	vector<string> v_bi = Util::split(buf_info.c_str(), '\t');
+	string s_baddr 		= v_bi[0].substr(2, string::npos);
+	string s_sz 		= v_bi[1];
+	// cout << s_baddr << " - " << s_sz << endl;
+
+	uint32_t baddr = stoul(s_baddr, nullptr, 16);
+	uint32_t sz    = stoul(s_sz, nullptr, 10);
+	vector<string> rec(buf.begin()+1, buf.end() );
+	
+	Alivebuf alvbuf(baddr, sz, rec);
+	// alvbuf.print();
+	alvfunc.insert_buf(alvbuf);
+	alvfunc.print();
 }
 
 // delete elements given the interval to begin, and until to end

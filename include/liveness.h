@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "alivebuf.h"
+#include "alivefunc.h"
 
 class Liveness
  {
@@ -17,6 +18,9 @@ class Liveness
  	static void merge_buf(std::vector<std::string> &log,
  						  std::vector<std::string> &rslt,
  						  std::list<Alivebuf>& lst_rslt);
+ 	static void init_alvfunc(std::vector<std::string> &log,
+ 							 std::list<Alivefunc>& lst_alvfunc);
+
  	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
  private:
  	static const uint32_t STACK_BEGIN = 0xb0000000;
@@ -69,6 +73,10 @@ class Liveness
  							    uint32_t size, 
  							    std::vector<std::string> &buf_rcrd, 
  							    std::vector<std::string> &rslt);
+
+ 	// cleanmerge
+ 	static void init_alvbuf(std::vector<std::string>& buf,
+ 							Alivefunc& alvfunc);
 
  	static void del_call_stack(std::vector< std::vector<std::string>::iterator > &call_stack, 
  							   int interval);

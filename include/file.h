@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "alivebuf.h"
+#include "alivefunc.h"
 #include "ns.h"
 
 class xt::File 
@@ -20,6 +21,7 @@ public:
 	void preproc_read();
 	void liveness_read();
 	void mergebuf_read();
+	void cleanmerge_read();
 private:
 	const unsigned int MAX_LINE_	= 5000000;	// log_ size
 
@@ -33,6 +35,7 @@ private:
 	void liveness_flow(std::vector<std::string> &rslt);
 	void mergebuf_flow(std::vector<std::string> &rslt,
 					   std::list<Alivebuf>& lst_rslt);
+	void cleanmerge_flow(std::list<Alivefunc>& lst_alvfunc);
 
 	void dump(std::ofstream &fout, std::vector<std::string> &out);
 	std::string get_op(const std::string fns);

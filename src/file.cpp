@@ -174,6 +174,37 @@ xt::File::mergebuf_read()
 }
 
 void 
+xt::File::cleanmerge_read()
+{
+	cout << "reading log :\t" << fp_ << "..." << endl;
+
+	list<Alivefunc> lst_alvfunc;
+
+	ifstream fin(fp_.c_str() );
+	if(fin.is_open() ) {
+		int fc = 0;
+		string line;
+
+		while(getline(fin, line) ) {
+			if(line.compare(cons::star_sprtr) == 0) {
+				cleanmerge_flow(lst_alvfunc);
+				fc++;
+			} else {
+				log_.push_back(line);
+			}
+		}
+
+		cout << "finishing clean merge buffers " 
+			 << "- total alive functions: \t" << dec << fc << endl;
+	} else {
+		cout << "cleanmerge_read - error open file: \t" << fp_ << endl;
+		return;
+	}
+
+	fin.close();
+}
+
+void 
 xt::File::preproc_flow(ofstream &fout, uint64_t &idx)
 {
 	Preproc::preprocess(log_, idx);
@@ -199,6 +230,13 @@ xt::File::mergebuf_flow(std::vector<std::string> &rslt,
 {
 	Liveness::merge_buf(log_, rslt, lst_rslt);
 	log_.clear();	
+}
+
+void 
+xt::File::cleanmerge_flow(std::list<Alivefunc>& lst_alvfunc)
+{
+	Liveness::init_alvfunc(log_, lst_alvfunc);
+	log_.clear();
 }
 
 void 
