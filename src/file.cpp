@@ -151,10 +151,10 @@ xt::File::mergebuf_read()
 		}
 
 		cout << "finish merging continuous buffers - total functions: \t" << fc << endl; 
-		Util::print_log(rslt);
+		// Util::print_log(rslt);
 
 		if(is_dump_) {
-			string op = get_op(cons::alivemem);	
+			string op = get_op(cons::merge);	
 			ofstream fout(op.c_str() );
 			if(fout.is_open() ) {
 				dump(fout, rslt);

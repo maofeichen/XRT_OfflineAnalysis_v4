@@ -3,9 +3,11 @@ DIR_INC	= ./include/
 DIR_SRC = ./src
 DIR_OBJ	= ./build/
 
-OBJS_PREPROC 	= $(addprefix $(DIR_OBJ), main_preprocess.o file.o preprocess.o liveness.o record.o node.o util.o)
-OBJS_LIVENESS	= $(addprefix $(DIR_OBJ), main_liveness.o file.o preprocess.o liveness.o record.o node.o util.o)
-OBJS_MERGER 	= $(addprefix $(DIR_OBJ), main_mergebuf.o file.o preprocess.o liveness.o record.o node.o util.o)
+OBJS_PREPROC 	= $(addprefix $(DIR_OBJ), main_preprocess.o file.o preprocess.o liveness.o alivebuf.o record.o node.o util.o)
+
+OBJS_LIVENESS	= $(addprefix $(DIR_OBJ), main_liveness.o file.o preprocess.o liveness.o alivebuf.o record.o node.o util.o)
+
+OBJS_MERGER 	= $(addprefix $(DIR_OBJ), main_mergebuf.o file.o preprocess.o liveness.o alivebuf.o record.o node.o util.o)
 
 CC		= g++-4.9
 CFLAG	= -g -Wall -std=c++11
@@ -40,6 +42,9 @@ $(DIR_OBJ)preprocess.o : $(DIR_SRC)/preprocess.cpp
 
 $(DIR_OBJ)liveness.o : $(DIR_SRC)/liveness.cpp
 	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/liveness.cpp -o $(DIR_OBJ)liveness.o
+
+$(DIR_OBJ)alivebuf.o : $(DIR_SRC)/alivebuf.cpp
+	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/alivebuf.cpp -o $(DIR_OBJ)alivebuf.o
 
 $(DIR_OBJ)record.o : $(DIR_SRC)/record.cpp
 	$(CC) $(INC) $(CFLAG) -c $(DIR_SRC)/record.cpp -o $(DIR_OBJ)record.o
