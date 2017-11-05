@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+
 #include "alivebuf.h"
 #include "cons.h"
 
@@ -16,6 +18,17 @@ Alivebuf::Alivebuf(const Alivebuf &r)
 	baddr_ = r.get_begin_addr();
 	byte_sz_ = r.get_byte_sz();
 	recs_.insert(recs_.begin(), r.get_recs().begin(), r.get_recs().end() );
+}
+
+string 
+Alivebuf::get_buf_info()
+{
+	stringstream ss_baddr;
+	ss_baddr << "0x" << hex << baddr_;
+	string s_baddr( ss_baddr.str() );
+
+	string s_size 	= to_string(byte_sz_);
+	return s_baddr + '\t' + s_size;
 }
 
 void 

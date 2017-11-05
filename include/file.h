@@ -2,9 +2,11 @@
 #define FILE_H_ 
 
 #include <fstream>
+#include <list>
 #include <string>
 #include <vector>
 
+#include "alivebuf.h"
 #include "ns.h"
 
 class xt::File 
@@ -29,7 +31,8 @@ private:
 
 	void preproc_flow(std::ofstream &fout, uint64_t &idx);
 	void liveness_flow(std::vector<std::string> &rslt);
-	void mergebuf_flow(std::vector<std::string> &rslt);
+	void mergebuf_flow(std::vector<std::string> &rslt,
+					   std::list<Alivebuf>& lst_rslt);
 
 	void dump(std::ofstream &fout, std::vector<std::string> &out);
 	std::string get_op(const std::string fns);

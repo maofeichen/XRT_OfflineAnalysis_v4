@@ -15,7 +15,9 @@ class Liveness
  	static void analyze_liveness(std::vector<std::string> &log, 
  								 std::vector<std::string> &rslt);
  	static void merge_buf(std::vector<std::string> &log,
- 						  std::vector<std::string> &rslt);
+ 						  std::vector<std::string> &rslt,
+ 						  std::list<Alivebuf>& lst_rslt);
+ 	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
  private:
  	static const uint32_t STACK_BEGIN = 0xb0000000;
  	static const uint32_t MIN_BUF_SZ  = 8;
@@ -58,8 +60,10 @@ class Liveness
  	static void store_merge_alvbuf(std::list<Alivebuf> &lst_alive_buf,
  								   Alivebuf &alive_buf);
 
+ 	static void store_group_list(std::vector<std::string>& rslt, 
+ 								 std::list<Alivebuf>& lst_alive_buf);
+
  	static void print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string> &buf_rcrd);
- 	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
  	
  	static void store_merge_buf(uint32_t baddr, 
  							    uint32_t size, 

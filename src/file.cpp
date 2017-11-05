@@ -136,6 +136,7 @@ xt::File::mergebuf_read()
 
 	ifstream fin(fp_.c_str() );
 	vector<string> rslt;	// the result vec
+	list<Alivebuf> lst_rslt;
 
 	if(fin.is_open() ) {
 		int fc = 0;
@@ -143,7 +144,7 @@ xt::File::mergebuf_read()
 
 		while(getline(fin, line) ) {
 			if(line.compare(cons::dash_sprtr) == 0) {
-				mergebuf_flow(rslt);
+				mergebuf_flow(rslt, lst_rslt);
 				fc++;
 			} else {
 				log_.push_back(line);
@@ -152,6 +153,7 @@ xt::File::mergebuf_read()
 
 		cout << "finish merging continuous buffers - total functions: \t" << fc << endl; 
 		// Util::print_log(rslt);
+		// Liveness::print_lst_alvbuf(lst_rslt);
 
 		if(is_dump_) {
 			string op = get_op(cons::merge);	
@@ -192,9 +194,10 @@ xt::File::liveness_flow(std::vector<std::string> &rslt)
 }
 
 void 
-xt::File::mergebuf_flow(std::vector<std::string> &rslt)
+xt::File::mergebuf_flow(std::vector<std::string> &rslt, 
+						std::list<Alivebuf>& lst_rslt)
 {
-	Liveness::merge_buf(log_, rslt);
+	Liveness::merge_buf(log_, rslt, lst_rslt);
 	log_.clear();	
 }
 

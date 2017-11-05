@@ -15,6 +15,7 @@ class Alivebuf
  	uint32_t get_begin_addr() const { return baddr_; }
  	uint32_t get_byte_sz() const { return byte_sz_; }
  	const std::vector<std::string>& get_recs() const { return recs_; }
+ 	std::string get_buf_info();
 
  	void set_begin_addr(uint32_t baddr) { baddr_ = baddr; }
  	void set_byte_sz(uint32_t sz) { byte_sz_ = sz; }
