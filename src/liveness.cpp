@@ -1,5 +1,4 @@
 #include <iostream>
-#include <list>
 #include <sstream>
 
 #include "alivebuf.h"
@@ -125,12 +124,16 @@ Liveness::merge_buf(std::vector<std::string> &log,
 	}
 
 	if(!lst_ldrslt.empty() ) {
+		group_cntns_buf(lst_ldrslt);
+
 		for(auto it = lst_ldrslt.begin(); it != lst_ldrslt.end(); ++it) {
 			it->print();
 		}
 	}
 
 	if(!lst_strslt.empty() ) {
+		group_cntns_buf(lst_strslt);
+
 		for(auto it = lst_strslt.begin(); it != lst_strslt.end(); ++it) {
 			it->print();
 		}
@@ -328,6 +331,52 @@ Liveness::merge_store_buf(std::vector<std::string> &store,
 	// Util::print_log(store);
 }
 
+
+// group all alive buffer in the list if any are continuous
+void 
+Liveness::group_cntns_buf(std::list<Alivebuf> &lst_alvbuf)
+{
+	cout << "grouping continuous buffers... - total alive buffers: " 
+		 << dec << lst_alvbuf.size() << endl;
+
+	for(auto oit = lst_alvbuf.begin(); oit != lst_alvbuf.end(); ++oit) {
+		// cout << "out layer alive buffer: " << endl;
+		// oit->print();
+
+		Alivebuf cbuf = Alivebuf(*oit);
+
+		uint32_t caddr = oit->get_begin_addr();
+		uint32_t csz   = oit->get_byte_sz();
+
+		for(auto iit = next(oit, 1); iit != lst_alvbuf.end(); ++iit) {
+			// cout << "out layer alive buffer: " << endl;
+			// oit->print();
+			// cout << "in layer alive buffer: " << endl;
+			// iit->print();
+
+			uint32_t iaddr = iit->get_begin_addr();
+			if( (caddr + csz) == iaddr) {
+				// found a continuous buffer, group them and delete the orginal
+				update_cntns_buf(cbuf, *iit, csz);
+			}
+		}
+	}
+}
+
+// concatenate the right alive buffer to the left 
+void 
+Liveness::update_cntns_buf(Alivebuf &l, const Alivebuf &r, uint32_t& byte_sz)
+{
+	if((l.get_begin_addr() + l.get_byte_sz() ) != r.get_begin_addr() ) {
+		cout << "update continuous buffers - error: given two alive buffers are not continuous, exit";
+		exit(1);
+	}
+
+	cout << "updating continuous buffers..." << endl;
+	l.concatenate_buf(r);
+	l.print();
+	byte_sz = l.get_byte_sz();
+}
 
 void 
 Liveness::init_ldst_begin_buf(uint32_t &b_addr, 

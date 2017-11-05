@@ -1,6 +1,7 @@
 #ifndef LIVENESS_H_
 #define LIVENESS_H_
 
+#include <list>
 #include <string>
 #include <vector>
 #include "alivebuf.h"
@@ -30,6 +31,8 @@ class Liveness
  							   std::vector<std::string> &rslt);
  	static void merge_store_buf(std::vector<std::string> &store,
  							   std::vector<std::string> &rslt);
+ 	static void group_cntns_buf(std::list<Alivebuf> &lst_alvbuf);
+ 	static void update_cntns_buf(Alivebuf &l, const Alivebuf &r, uint32_t& byte_sz);
 
  	static void init_ldst_begin_buf(uint32_t &b_addr, 
  							    	uint64_t &b_idx, 

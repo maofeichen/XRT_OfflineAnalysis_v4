@@ -9,14 +9,17 @@ class Alivebuf
  public:
  	Alivebuf() {};
  	Alivebuf(uint32_t baddr, uint32_t sz, std::vector<std::string> &rec);
+ 	Alivebuf(const Alivebuf &r);
  	~Alivebuf() {};
 
- 	uint32_t get_begin_addr() { return baddr_; }
- 	uint32_t get_byte_sz() { return byte_sz_; }
+ 	uint32_t get_begin_addr() const { return baddr_; }
+ 	uint32_t get_byte_sz() const { return byte_sz_; }
+ 	const std::vector<std::string>& get_recs() const { return recs_; }
 
  	void set_begin_addr(uint32_t baddr) { baddr_ = baddr; }
  	void set_byte_sz(uint32_t sz) { byte_sz_ = sz; }
  	void insert_rec(std::string &rec) { recs_.push_back(rec); }
+ 	void concatenate_buf(const Alivebuf& r);
 
  	void clear();
  	bool empty();
