@@ -338,7 +338,9 @@ Liveness::group_cntns_buf(std::list<Alivebuf> &lst_alvbuf)
 {
 	cout << "grouping continuous buffers... - total alive buffers: " 
 		 << dec << lst_alvbuf.size() << endl;
+	print_lst_alvbuf(lst_alvbuf);
 
+	list<Alivebuf> lst;
 	for(auto oit = lst_alvbuf.begin(); oit != lst_alvbuf.end(); ++oit) {
 		// cout << "out layer alive buffer: " << endl;
 		// oit->print();
@@ -348,7 +350,7 @@ Liveness::group_cntns_buf(std::list<Alivebuf> &lst_alvbuf)
 		uint32_t caddr = oit->get_begin_addr();
 		uint32_t csz   = oit->get_byte_sz();
 
-		for(auto iit = next(oit, 1); iit != lst_alvbuf.end(); ++iit) {
+		for(auto iit = next(oit, 1); iit != lst_alvbuf.end(); ) {
 			// cout << "out layer alive buffer: " << endl;
 			// oit->print();
 			// cout << "in layer alive buffer: " << endl;
@@ -358,9 +360,19 @@ Liveness::group_cntns_buf(std::list<Alivebuf> &lst_alvbuf)
 			if( (caddr + csz) == iaddr) {
 				// found a continuous buffer, group them and delete the orginal
 				update_cntns_buf(cbuf, *iit, csz);
+				iit = lst_alvbuf.erase(iit);
+				// print_lst_alvbuf(lst_alvbuf);
+			} else {
+				++iit;
 			}
 		}
+
+		lst.push_back(cbuf);
 	}
+
+	lst_alvbuf.clear();
+	lst_alvbuf.insert(lst_alvbuf.begin(), lst.begin(), lst.end() );
+	print_lst_alvbuf(lst_alvbuf);
 }
 
 // concatenate the right alive buffer to the left 
@@ -374,7 +386,7 @@ Liveness::update_cntns_buf(Alivebuf &l, const Alivebuf &r, uint32_t& byte_sz)
 
 	cout << "updating continuous buffers..." << endl;
 	l.concatenate_buf(r);
-	l.print();
+	// l.print();
 	byte_sz = l.get_byte_sz();
 }
 
@@ -456,6 +468,17 @@ Liveness::print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string
 		cout << *it << endl;
 	}
 
+	cout << cons::dash_sprtr << endl;
+}
+
+void 
+Liveness::print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf)
+{
+	cout << "list alive buffers " 
+		 << " - total alive buffers : " << dec << lst_alvbuf.size() << endl;
+	for(auto it = lst_alvbuf.begin(); it != lst_alvbuf.end(); ++it) {
+		it->print();
+	}
 	cout << cons::dash_sprtr << endl;
 }
 

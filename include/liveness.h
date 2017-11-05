@@ -59,6 +59,8 @@ class Liveness
  								   Alivebuf &alive_buf);
 
  	static void print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string> &buf_rcrd);
+ 	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
+ 	
  	static void store_merge_buf(uint32_t baddr, 
  							    uint32_t size, 
  							    std::vector<std::string> &buf_rcrd, 
