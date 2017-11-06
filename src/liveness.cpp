@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "alivebuf.h"
+#include "alivefunc.h"
 #include "cons.h"
 #include "flag.h"
 #include "liveness.h"
@@ -153,7 +154,7 @@ void
 Liveness::init_alvfunc(std::vector<std::string> &log,
 						  std::list<Alivefunc>& lst_alvfunc)
 {
-	cout << "analyzing alive function call..." << endl;
+	cout << "init alive function call..." << endl;
 	// Util::print_log(log);
 
 	Alivefunc alvfunc;
@@ -165,8 +166,8 @@ Liveness::init_alvfunc(std::vector<std::string> &log,
 	alvfunc.set_ret_fir(log[sz-2]);
 	alvfunc.set_ret_sec(log[sz-1]);
 
-	cout << log[0] << endl;
-	cout << log[1] << endl;
+	// cout << log[0] << endl;
+	// cout << log[1] << endl;
 
 	for(auto it = log.begin()+3; it != log.end() - 2; ++it) {
 		if(it->compare(cons::dash_sprtr) == 0) {
@@ -179,19 +180,69 @@ Liveness::init_alvfunc(std::vector<std::string> &log,
 		}
 	}
 
-	cout << log[sz-2] << endl;
-	cout << log[sz-1] << endl;
+	// cout << log[sz-2] << endl;
+	// cout << log[sz-1] << endl;
+
+	lst_alvfunc.push_back(alvfunc);
+}
+
+// removes all identical alive buffers, left the most recent O(n^2)
+void 
+Liveness::cleanmerge(std::list<Alivefunc>& lst_alvfunc)
+{	
+	// reverse
+	for(auto oit = lst_alvfunc.rbegin(); oit != lst_alvfunc.rend(); ++oit) {
+		list<Alivebuf> lst_oalvbuf = oit->get_lst_alvbuf();
+
+		for(auto oit_alvbuf = lst_oalvbuf.begin(); oit_alvbuf != lst_oalvbuf.end(); ++oit_alvbuf) {
+			// cout << "outlayer alive buffer: " << endl;
+			// oit_alvbuf->print();
+
+			for(auto iit = std::next(oit,1); iit != lst_alvfunc.rend(); ++iit) {
+				// list<Alivebuf> lst_ialvbuf = iit->get_lst_alvbuf(); 
+
+				for(auto iit_alvbuf = iit->get_lst_alvbuf().begin(); iit_alvbuf != iit->get_lst_alvbuf().end(); ) {
+					// cout << "inlayer alive buffer: " << endl;
+					// iit_alvbuf->print();
+
+					if(oit_alvbuf->compare(*iit_alvbuf) ) {
+						// cout << "found a match!" << endl; 
+						// cout << "inner function sz: " << iit->get_lst_alvbuf().size() << endl;
+						iit_alvbuf = iit->get_lst_alvbuf().erase(iit_alvbuf);
+						// cout << "inner function sz: " << iit->get_lst_alvbuf().size() << endl;
+					} else {
+						++iit_alvbuf;
+					}
+				}
+			}
+		}
+	}
+
+	// del a function if there is no alive buffer
+	for(auto it = lst_alvfunc.begin(); it != lst_alvfunc.end(); ) {
+		if(it->get_lst_alvbuf().size() == 0) {
+			it = lst_alvfunc.erase(it);	
+		} else {
+			++it;
+		}
+	}
 }
 
 void 
-Liveness::print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf)
+Liveness::store_cleanmerge(std::vector<std::string>& rslt, 
+ 						   std::list<Alivefunc>& lst_alive_func)
 {
-	cout << "list alive buffers " 
-		 << " - total alive buffers : " << dec << lst_alvbuf.size() << endl;
-	for(auto it = lst_alvbuf.begin(); it != lst_alvbuf.end(); ++it) {
-		it->print();
+	for(auto it = lst_alive_func.begin(); it != lst_alive_func.end(); ++it) {
+		rslt.push_back(it->get_call_fir() );
+		rslt.push_back(it->get_call_sec() );
+		rslt.push_back(cons::dash_sprtr);
+
+		store_group_list(rslt, it->get_lst_alvbuf() );
+
+		rslt.push_back(it->get_ret_fir() );
+		rslt.push_back(it->get_ret_sec() );
+		rslt.push_back(cons::star_sprtr);
 	}
-	// cout << cons::dash_sprtr << endl;
 }
 
 void 
@@ -538,6 +589,16 @@ Liveness::print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string
 	cout << cons::dash_sprtr << endl;
 }
 
+void 
+Liveness::print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf)
+{
+	cout << "list alive buffers " 
+		 << " - total alive buffers : " << dec << lst_alvbuf.size() << endl;
+	for(auto it = lst_alvbuf.begin(); it != lst_alvbuf.end(); ++it) {
+		it->print();
+	}
+	// cout << cons::dash_sprtr << endl;
+}
 
 void 
 Liveness::store_merge_buf(uint32_t baddr, 
@@ -579,7 +640,7 @@ Liveness::init_alvbuf(std::vector<std::string>& buf,
 	Alivebuf alvbuf(baddr, sz, rec);
 	// alvbuf.print();
 	alvfunc.insert_buf(alvbuf);
-	alvfunc.print();
+	// alvfunc.print();
 }
 
 // delete elements given the interval to begin, and until to end

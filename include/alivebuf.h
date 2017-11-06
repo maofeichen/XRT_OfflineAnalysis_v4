@@ -19,8 +19,10 @@ class Alivebuf
 
  	void set_begin_addr(uint32_t baddr) { baddr_ = baddr; }
  	void set_byte_sz(uint32_t sz) { byte_sz_ = sz; }
+ 	
  	void insert_rec(std::string &rec) { recs_.push_back(rec); }
  	void concatenate_buf(const Alivebuf& r);
+ 	bool compare(const Alivebuf& r);
 
  	void clear();
  	bool empty();

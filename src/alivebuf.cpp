@@ -39,6 +39,27 @@ Alivebuf::concatenate_buf(const Alivebuf& r)
 	recs_.insert(recs_.end(), r.get_recs().begin(), r.get_recs().end() );
 }
 
+bool 
+Alivebuf::compare(const Alivebuf& r)
+{
+	if(baddr_ == r.get_begin_addr() && byte_sz_ == r.get_byte_sz() ) {
+		vector<string> r_recs = r.get_recs();
+
+		if(recs_.size() == r_recs.size() ) {
+			int sz = recs_.size();
+			for(int i = 0; i < sz; i++) {
+				if(recs_[i].compare(r_recs[i]) != 0) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void 
 Alivebuf::clear()
 {

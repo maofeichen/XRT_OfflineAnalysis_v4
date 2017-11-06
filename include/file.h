@@ -37,6 +37,7 @@ private:
 					   std::list<Alivebuf>& lst_rslt);
 	void cleanmerge_flow(std::list<Alivefunc>& lst_alvfunc);
 
+	void dump(const std::string s, std::vector<std::string> &out);
 	void dump(std::ofstream &fout, std::vector<std::string> &out);
 	std::string get_op(const std::string fns);
 };

@@ -18,10 +18,12 @@ class Liveness
  	static void merge_buf(std::vector<std::string> &log,
  						  std::vector<std::string> &rslt,
  						  std::list<Alivebuf>& lst_rslt);
+ 	// clean merge buffers
  	static void init_alvfunc(std::vector<std::string> &log,
  							 std::list<Alivefunc>& lst_alvfunc);
-
- 	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
+ 	static void cleanmerge(std::list<Alivefunc>& lst_alvfunc);
+ 	static void store_cleanmerge(std::vector<std::string>& rslt, 
+ 								 std::list<Alivefunc>& lst_alive_func); 
  private:
  	static const uint32_t STACK_BEGIN = 0xb0000000;
  	static const uint32_t MIN_BUF_SZ  = 8;
@@ -68,7 +70,7 @@ class Liveness
  								 std::list<Alivebuf>& lst_alive_buf);
 
  	static void print_merge_buf(uint32_t baddr, uint32_t size, std::vector<std::string> &buf_rcrd);
- 	
+ 	static void print_lst_alvbuf(std::list<Alivebuf>& lst_alvbuf);
  	static void store_merge_buf(uint32_t baddr, 
  							    uint32_t size, 
  							    std::vector<std::string> &buf_rcrd, 

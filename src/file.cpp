@@ -179,6 +179,7 @@ xt::File::cleanmerge_read()
 	cout << "reading log :\t" << fp_ << "..." << endl;
 
 	list<Alivefunc> lst_alvfunc;
+	vector<string> rslt;
 
 	ifstream fin(fp_.c_str() );
 	if(fin.is_open() ) {
@@ -196,6 +197,18 @@ xt::File::cleanmerge_read()
 
 		cout << "finishing clean merge buffers " 
 			 << "- total alive functions: \t" << dec << fc << endl;
+
+		// cout << "total alive functions: " << dec << lst_alvfunc.size() << endl;
+		Liveness::cleanmerge(lst_alvfunc);
+		// cout << "total alive functions: " << dec << lst_alvfunc.size() << endl;
+		// for(auto it = lst_alvfunc.begin(); it != lst_alvfunc.end(); ++it) {
+		// 	it->print();
+		// }
+
+		Liveness::store_cleanmerge(rslt, lst_alvfunc);
+		if(is_dump_) {
+			dump(cons::cleanmerge, rslt);
+		}
 	} else {
 		cout << "cleanmerge_read - error open file: \t" << fp_ << endl;
 		return;
@@ -237,6 +250,21 @@ xt::File::cleanmerge_flow(std::list<Alivefunc>& lst_alvfunc)
 {
 	Liveness::init_alvfunc(log_, lst_alvfunc);
 	log_.clear();
+}
+
+void 
+xt::File::dump(const string s, std::vector<std::string> &out)
+{
+	string op = get_op(s);	
+	ofstream fout(op.c_str() );
+	if(fout.is_open() ) {
+		for(auto it = out.begin(); it != out.end(); ++it) {
+			fout << *it << '\n';
+		}
+	} else {
+		cout << "dump - error open dump file:\t" << op << endl;
+		return; 
+	}
 }
 
 void 
