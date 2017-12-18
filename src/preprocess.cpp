@@ -266,7 +266,9 @@ Preproc::add_idx(std::vector<std::string> &log, uint64_t &idx)
 		string s_idx = to_string(idx);
 
 		if(Util::equal_mark(cflag, flag::TCG_QEMU_LD) 
-			|| Util::equal_mark(cflag, flag::TCG_QEMU_ST) ) {
+			|| Util::equal_mark(cflag, flag::TCG_QEMU_LD_POINTER)
+			|| Util::equal_mark(cflag, flag::TCG_QEMU_ST) 
+			|| Util::equal_mark(cflag, flag::TCG_QEMU_ST_POINTER) ) {
 			(*it) += '\t';
 			(*it) += s_idx;
 		} else {
