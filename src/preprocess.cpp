@@ -16,7 +16,16 @@ Preproc::preprocess(std::vector<std::string> &log,
 	filter_invalid_fmark(log);
 	filter_insn_mark(log);
 	parse_buf_size(log);
+	// printlog(log);
+	split_multibyte_record(log);
+
 	add_idx(log, idx);
+}
+
+void Preproc::printlog(std::vector<std::string> &log)
+{
+  for(auto it = log.begin(); it != log.end(); ++it)
+    cout << *it << endl;
 }
 
 // If an insn_mark following with a second insn_mark, then first is unused.
@@ -253,6 +262,174 @@ Preproc::update_buf_size(const string &rec, const string &sz, const int tcg_enco
 	rec_new += sz;
 
 	return rec_new;
+}
+
+void Preproc::split_multibyte_record(std::vector<std::string> &log)
+{
+  cout << "split multi byte record ..." << endl;
+
+  vector<string> v, sv;
+  string sz;
+  string o_rec, n_rec;
+
+  for(auto it = log.begin(); it != log.end(); ++it) {
+    string cf = Util::get_flag(*it);
+    o_rec = *it;
+
+    if(!Util::is_mark(cf) ) {
+      int icf = stoi(cf, nullptr, 16);
+      if(Util::is_buf_range(icf) ) {
+        parse_multibyte_record(*it, sv);
+        for(auto sit = sv.begin(); sit != sv.end(); ++sit) {
+          // cout << *sit << endl;
+          v.push_back(*sit);
+        }
+      }
+      else {
+        v.push_back(*it);
+      }
+    }
+    else {
+      v.push_back(*it);
+    }
+  }
+
+  log.clear();
+  log.insert(log.begin(), v.begin(), v.end() );
+}
+
+void
+Preproc::parse_multibyte_record(
+    std::string record,
+    std::vector<std::string> &result)
+{
+  // cout << record << endl;
+  string cf = Util::get_flag(record);
+  int icf = stoi(cf, nullptr, 16);
+  result.clear();
+
+  // No need for st_ptr/ld_ptr
+  switch(icf) {
+    case flag::NUM_TCG_LD: parse_multibyte_ld(record, result); break;
+    case flag::NUM_TCG_ST: parse_multibyte_st(record, result); break;
+    default: result.push_back(record); break;
+  }
+}
+
+void
+Preproc::parse_multibyte_ld(
+    std::string record,
+    std::vector<std::string> &result)
+{
+//  cout << "LD: " << record << endl;
+
+  vector<string> v =  Util::split(record.c_str(), '\t');
+  int bitsz = stoi(v[6], nullptr, 10);
+  int bytesz = bitsz / 8;
+
+  if(bitsz > 8) {
+//    for(auto it = v.begin(); it != v.end(); ++it) {
+//      cout << *it << " ";
+//    }
+//    cout << endl;
+    vector<ByteAddrVal> vbyte = split_multibyte_mem(v[1], v[2], bytesz);
+    for(auto it = vbyte.begin(); it != vbyte.end(); ++it) {
+      string newrec = v[0] + '\t';
+      newrec += it->addr + '\t';
+      newrec += it->val + '\t';
+      newrec += v[3] + '\t';
+      newrec += v[4] + '\t';
+      newrec += v[5] + '\t';
+      newrec += "8";
+//      cout << "after split: " << newrec << endl;
+      result.push_back(newrec);
+    }
+  }
+  else {
+    result.push_back(record);
+  }
+}
+
+void
+Preproc::parse_multibyte_st(
+    std::string record,
+    std::vector<std::string> &result)
+{
+//  cout << "ST: " << record << endl;
+  vector<string> v =  Util::split(record.c_str(), '\t');
+  int bitsz = stoi(v[6], nullptr, 10);
+  int bytesz = bitsz / 8;
+
+  if(bitsz > 8) {
+//    for(auto it = v.begin(); it != v.end(); ++it) {
+//      cout << *it << " ";
+//    }
+//    cout << endl;
+    vector<ByteAddrVal> vbyte = split_multibyte_mem(v[4], v[5], bytesz);
+
+    for(auto it = vbyte.begin(); it != vbyte.end(); ++it) {
+      string newrec = v[0] + '\t';
+      newrec += v[1] + '\t';
+      newrec += v[2] + '\t';
+      newrec += v[3] + '\t';
+      newrec += it->addr + '\t';
+      newrec += it->val + '\t';
+      newrec += "8";
+//      cout << "after split: " << newrec << endl;
+      result.push_back(newrec);
+    }
+  }
+  else {
+    result.push_back(record);
+  }
+
+}
+
+vector<ByteAddrVal>
+Preproc::split_multibyte_mem(
+    std::string addr,
+    std::string val,
+    int bytesz)
+{
+  vector<ByteAddrVal> v_memVal;
+  ByteAddrVal aMemVal;
+
+  unsigned int intAddr = stoul(addr, nullptr, 16);
+  unsigned int byteIdx = 0;
+
+  string byteVal          = val;
+  unsigned int byteValLen = byteVal.length();
+
+  for(; byteIdx < bytesz; byteIdx++){
+    std::stringstream hexstream;
+    hexstream << std::hex << intAddr + byteIdx;
+    string byteAddr(hexstream.str());
+    aMemVal.addr = byteAddr;
+
+    if(byteValLen == 0){
+      aMemVal.val = "0";
+    }else if(byteValLen > 0 && byteValLen <= BYTE_VAL_STR_LEN){
+      aMemVal.val = byteVal;
+    }else if(byteValLen > BYTE_VAL_STR_LEN){
+      aMemVal.val = byteVal.substr(byteValLen - BYTE_VAL_STR_LEN, BYTE_VAL_STR_LEN);
+    }
+
+    v_memVal.push_back(aMemVal);
+
+    // remove byte val has been processed
+    if(byteValLen > BYTE_VAL_STR_LEN){
+      byteVal = byteVal.substr(0, byteValLen - BYTE_VAL_STR_LEN);
+      byteValLen = byteVal.length();
+    }else{
+      byteVal = "0";
+      // byteVal.clear();
+    }
+  }
+
+//  for(auto it = v_memVal.begin(); it != v_memVal.end(); ++it) {
+//    cout << it->addr << " " << it->val << endl;
+//  }
+  return v_memVal;
 }
 
 void 
