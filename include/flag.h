@@ -32,6 +32,10 @@ namespace flag {
 	const std::string TCG_ADD             = "3b";
 	const std::string TCG_XOR             = "47";
 
+	const std::string GROUP_START         = "100";
+    const std::string GROUP_MIDDLE        = "101";
+    const std::string GROUP_END           = "102";
+
 	const int G_TEMP_UNKNOWN        = 0xfff0;
 	const int G_TEMP_ENV            = 0xfff1;
 	const int G_TEMP_CC_OP          = 0xfff2;

@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <iterator> // for std::prev
 #include <sstream>
 
 using namespace std;
@@ -18,7 +19,6 @@ Preproc::preprocess(std::vector<std::string> &log,
 	parse_buf_size(log);
 	// printlog(log);
 	split_multibyte_record(log);
-
 	add_idx(log, idx);
 }
 
@@ -264,6 +264,11 @@ Preproc::update_buf_size(const string &rec, const string &sz, const int tcg_enco
 	return rec_new;
 }
 
+// Split multi-byte memory record into byte-to-byte record.
+// Also for load memory record:
+//  inserts GROUP START flag
+//  byte to byte record
+//  inserts GROUP END flag
 void Preproc::split_multibyte_record(std::vector<std::string> &log)
 {
   cout << "split multi byte record ..." << endl;
@@ -280,10 +285,12 @@ void Preproc::split_multibyte_record(std::vector<std::string> &log)
       int icf = stoi(cf, nullptr, 16);
       if(Util::is_buf_range(icf) ) {
         parse_multibyte_record(*it, sv);
+
         for(auto sit = sv.begin(); sit != sv.end(); ++sit) {
           // cout << *sit << endl;
           v.push_back(*sit);
         }
+
       }
       else {
         v.push_back(*it);
@@ -333,6 +340,9 @@ Preproc::parse_multibyte_ld(
 //    }
 //    cout << endl;
     vector<ByteAddrVal> vbyte = split_multibyte_mem(v[1], v[2], bytesz);
+
+    // result.push_back(flag::GROUP_START);
+
     for(auto it = vbyte.begin(); it != vbyte.end(); ++it) {
       string newrec = v[0] + '\t';
       newrec += it->addr + '\t';
@@ -340,10 +350,19 @@ Preproc::parse_multibyte_ld(
       newrec += v[3] + '\t';
       newrec += v[4] + '\t';
       newrec += v[5] + '\t';
-      newrec += "8";
+      newrec += "8\t";
+//      cout << "after split: " << newrec << endl;
+
+      if(it == vbyte.begin() )
+        newrec += flag::GROUP_START;
+      else if(it == vbyte.end() -1)
+        newrec += flag::GROUP_END;
+      else
+        newrec += flag::GROUP_MIDDLE;
 //      cout << "after split: " << newrec << endl;
       result.push_back(newrec);
     }
+    // result.push_back(flag::GROUP_END);
   }
   else {
     result.push_back(record);
