@@ -319,6 +319,7 @@ Preproc::parse_multibyte_record(
   switch(icf) {
     case flag::NUM_TCG_LD: parse_multibyte_ld(record, result); break;
     case flag::NUM_TCG_ST: parse_multibyte_st(record, result); break;
+    case flag::NUM_TCG_ST_POINTER: parse_multibyte_st_ptr(record, result); break;
     default: result.push_back(record); break;
   }
 }
@@ -402,6 +403,39 @@ Preproc::parse_multibyte_st(
     result.push_back(record);
   }
 
+}
+
+void Preproc::parse_multibyte_st_ptr(
+    string record,
+    vector<std::string> &result)
+{
+  vector<string> v =  Util::split(record.c_str(), '\t');
+  int bitsz = stoi(v[6], nullptr, 10);
+  int bytesz = bitsz / 8;
+
+  cout << "ST PTR: " << record << " sz: " << bytesz << endl;
+  if(bitsz > 8) {
+//    for(auto it = v.begin(); it != v.end(); ++it) {
+//      cout << *it << " ";
+//    }
+//    cout << endl;
+    vector<ByteAddrVal> vbyte = split_multibyte_mem(v[4], v[5], bytesz);
+
+    for(auto it = vbyte.begin(); it != vbyte.end(); ++it) {
+      string newrec = v[0] + '\t';
+      newrec += v[1] + '\t';
+      newrec += v[2] + '\t';
+      newrec += v[3] + '\t';
+      newrec += it->addr + '\t';
+      newrec += it->val + '\t';
+      newrec += "8";
+      cout << "after split: " << newrec << endl;
+      result.push_back(newrec);
+    }
+  }
+  else {
+    result.push_back(record);
+  }
 }
 
 vector<ByteAddrVal>

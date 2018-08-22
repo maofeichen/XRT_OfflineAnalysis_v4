@@ -36,6 +36,7 @@ private:
 	static void parse_multibyte_record(std::string record, std::vector<std::string> &result);
 	static void parse_multibyte_ld(std::string record, std::vector<std::string> &result);
 	static void parse_multibyte_st(std::string record, std::vector<std::string> &result);
+	static void parse_multibyte_st_ptr(std::string record, std::vector<std::string> &result);
 	static std::vector<ByteAddrVal> split_multibyte_mem(std::string addr, std::string val, int bytesz);
 
 	static void add_idx(std::vector<std::string> &log, uint64_t &idx);
